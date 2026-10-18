@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50 text-slate-800">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quote Studio Pro - Light Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        montserrat: ['Montserrat', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif'],
+                        playfair: ['Playfair Display', 'serif'],
+                        cinzel: ['Cinzel', 'serif'],
+                        syne: ['Syne', 'sans-serif'],
+                        space: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbars & canvas adjustments for light mode */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .tab-btn.active {
+            background-color: #ffffff;
+            color: #0f172a;
+            border-color: #f97316;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .template-card.active {
+            border-color: #f97316;
+            background-color: rgba(249, 115, 22, 0.05);
+        }
+
+        .checker-bg {
+            background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="h-full font-sans antialiased bg-white text-slate-800 flex flex-col overflow-hidden">
+
+    <!-- Top Header Navigation -->
+    <header class="border-b border-slate-200 bg-white/90 backdrop-blur px-6 py-3 flex items-center justify-between z-50 flex-shrink-0 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-500 via-amber-500 to-yellow-400 flex items-center justify-center font-black text-slate-950 text-xl shadow-md shadow-orange-500/20">
+                ”
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="font-extrabold text-base tracking-tight text-slate-900">Quote Studio</h1>
+                    <span class="px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200 text-[10px] font-bold uppercase tracking-wider">PRO 2.0</span>
+                </div>
+                <p class="text-xs text-slate-500 hidden sm:block">Professional Graphic Design Studio for Social Media</p>
+            </div>
+        </div>
+
+        <!-- Right Header Tools -->
+        <div class="flex items-center gap-3">
+            <button onclick="randomizeQuote()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition flex items-center gap-2 shadow-sm">
+                <svg class="w-3.5 h-3.5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <span class="hidden sm:inline">Random Quote</span>
+            </button>
+
+            <button id="downloadBtn" onclick="downloadQuote()" class="px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold rounded-xl shadow-md shadow-orange-500/20 transition-all flex items-center gap-2 text-xs active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Export HD Image
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Application Workspace -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative bg-white">
+
+        <!-- Left Navigation Sidebar (Category Tabs) -->
+        <nav class="w-full md:w-16 border-b md:border-b-0 md:border-r border-slate-200 bg-slate-50/80 flex md:flex-col items-center justify-around md:justify-start py-2 md:py-4 gap-2 flex-shrink-0 z-40">
+            <button onclick="switchTab('templates')" id="tabBtn-templates" class="tab-btn active w-12 h-12 rounded-xl flex flex-col items-center justify-center text-[10px] font-medium border border-transparent transition text-slate-500 hover:text-slate-900">
+                <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
+                Style
+            </button>
+
+            <button onclick="switchTab('content')" id="tabBtn-content" class="tab-btn w-12 h-12 rounded-xl flex flex-col items-center justify-center text-[10px] font-medium border border-transparent transition text-slate-500 hover:text-slate-900">
+                <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                Text
+            </button>
+
+            <button onclick="switchTab('design')" id="tabBtn-design" class="tab-btn w-12 h-12 rounded-xl flex flex-col items-center justify-center text-[10px] font-medium border border-transparent transition text-slate-500 hover:text-slate-900">
+                <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
+                Colors
+            </button>
+
+            <button onclick="switchTab('canvas')" id="tabBtn-canvas" class="tab-btn w-12 h-12 rounded-xl flex flex-col items-center justify-center text-[10px] font-medium border border-transparent transition text-slate-500 hover:text-slate-900">
+                <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                Canvas
+            </button>
+        </nav>
+
+        <!-- Dynamic Control Sidebar Panel -->
+        <aside class="w-full md:w-80 lg:w-96 border-b md:border-b-0 md:border-r border-slate-200 bg-slate-50/50 backdrop-blur overflow-y-auto p-5 space-y-6 flex-shrink-0 z-30">
+            
+            <!-- Tab 1: Templates & Layout Presets -->
+            <div id="tab-templates" class="tab-content space-y-6">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Layout Preset</h2>
+                    <p class="text-xs text-slate-500 mb-4">Choose a graphic layout template for your quote.</p>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="selectTemplate('cardBox')" id="tplBtn-cardBox" class="template-card active p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 text-left transition flex flex-col justify-between h-24 relative overflow-hidden group shadow-sm">
+                            <div class="flex items-center justify-between w-full">
+                                <span class="text-xs font-bold text-slate-900">Modern Card</span>
+                                <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                            </div>
+                            <p class="text-[10px] text-slate-500">Classic rounded floating card box with accent geometry.</p>
+                        </button>
+
+                        <button onclick="selectTemplate('minimal')" id="tplBtn-minimal" class="template-card p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 text-left transition flex flex-col justify-between h-24 relative overflow-hidden group shadow-sm">
+                            <div class="flex items-center justify-between w-full">
+                                <span class="text-xs font-bold text-slate-900">Minimalist</span>
+                                <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                            </div>
+                            <p class="text-[10px] text-slate-500">Full screen text layout with modern typography emphasis.</p>
+                        </button>
+
+                        <button onclick="selectTemplate('glass')" id="tplBtn-glass" class="template-card p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 text-left transition flex flex-col justify-between h-24 relative overflow-hidden group shadow-sm">
+                            <div class="flex items-center justify-between w-full">
+                                <span class="text-xs font-bold text-slate-900">Glassmorphic</span>
+                                <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                            </div>
+                            <p class="text-[10px] text-slate-500">Frost glass translucent overlay container style.</p>
+                        </button>
+
+                        <button onclick="selectTemplate('editorial')" id="tplBtn-editorial" class="template-card p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 text-left transition flex flex-col justify-between h-24 relative overflow-hidden group shadow-sm">
+                            <div class="flex items-center justify-between w-full">
+                                <span class="text-xs font-bold text-slate-900">Editorial Serif</span>
+                                <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                            </div>
+                            <p class="text-[10px] text-slate-500">Sophisticated side-bordered magazine layout style.</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Color Palette Presets -->
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Color Presets</h2>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button onclick="applyPreset('orangeDark')" class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-orange-500/50 transition flex items-center gap-3 shadow-sm">
+                            <div class="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center">
+                                <div class="w-3 h-3 rounded-full bg-orange-500"></div>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-xs font-semibold text-slate-800">Dark Orange</p>
+                                <p class="text-[10px] text-slate-400">Classic Tech</p>
+                            </div>
+                        </button>
+
+                        <button onclick="applyPreset('electricCyan')" class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-cyan-500/50 transition flex items-center gap-3 shadow-sm">
+                            <div class="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center">
+                                <div class="w-3 h-3 rounded-full bg-cyan-400"></div>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-xs font-semibold text-slate-800">Cyan Neon</p>
+                                <p class="text-[10px] text-slate-400">Modern Cyber</p>
+                            </div>
+                        </button>
+
+                        <button onclick="applyPreset('royalGold')" class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-yellow-500/50 transition flex items-center gap-3 shadow-sm">
+                            <div class="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center">
+                                <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-xs font-semibold text-slate-800">Royal Gold</p>
+                                <p class="text-[10px] text-slate-400">Luxury Dark</p>
+                            </div>
+                        </button>
+
+                        <button onclick="applyPreset('purpleVibe')" class="p-2.5 rounded-xl border border-slate-200 bg-white hover:border-purple-500/50 transition flex items-center gap-3 shadow-sm">
+                            <div class="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center">
+                                <div class="w-3 h-3 rounded-full bg-purple-500"></div>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-xs font-semibold text-slate-800">Purple Dusk</p>
+                                <p class="text-[10px] text-slate-400">Vibrant Synth</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Text Content & Formatting -->
+            <div id="tab-content" class="tab-content hidden space-y-5">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Text Content</h2>
+                    <p class="text-xs text-slate-500 mb-4">Edit primary text, accent highlight, and author branding.</p>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1.5">Primary Text</label>
+                            <input type="text" id="primaryTextInput" value="Discover your" oninput="updateText()" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-orange-500 shadow-sm transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1.5">Highlighted Accent Text</label>
+                            <input type="text" id="accentTextInput" value="unique strength" oninput="updateText()" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-orange-500 shadow-sm transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1.5">Author / Brand Tagline</label>
+                            <input type="text" id="footerTextInput" value="VACC MEDIA AKOKA" oninput="updateText()" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-orange-500 shadow-sm transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-200">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Typography Settings</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1.5">Font Family</label>
+                            <select id="fontFamilySelect" onchange="updateStyle()" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-orange-500 shadow-sm transition">
+                                <option value="font-sans">Plus Jakarta (Modern Sans)</option>
+                                <option value="font-montserrat">Montserrat (Bold & Tech)</option>
+                                <option value="font-syne">Syne (Display Heavy)</option>
+                                <option value="font-poppins">Poppins (Friendly Round)</option>
+                                <option value="font-playfair">Playfair Display (Editorial Serif)</option>
+                                <option value="font-cinzel">Cinzel (Classic Luxury)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-xs font-medium text-slate-700">Quote Text Size</label>
+                                <span id="fontSizeVal" class="text-xs font-mono text-orange-600 font-bold">32px</span>
+                            </div>
+                            <input type="range" id="fontSizeInput" min="20" max="52" value="32" oninput="updateStyle()" class="w-full accent-orange-500 bg-slate-200 rounded-lg cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Color Customization -->
+            <div id="tab-design" class="tab-content hidden space-y-5">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Color Palette</h2>
+                    <p class="text-xs text-slate-500 mb-4">Customize individual element colors precisely.</p>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-2">Accent Color</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" id="accentColor" value="#ff5500" oninput="updateStyle()" class="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0">
+                                <span id="accentHex" class="text-xs text-slate-700 uppercase font-mono">#FF5500</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-2">Background</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" id="bgColor" value="#121212" oninput="updateStyle()" class="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0">
+                                <span id="bgHex" class="text-xs text-slate-700 uppercase font-mono">#121212</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-2">Card Fill Color</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" id="cardBgColor" value="#ffffff" oninput="updateStyle()" class="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0">
+                                <span id="cardBgHex" class="text-xs text-slate-700 uppercase font-mono">#FFFFFF</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-2">Primary Text</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" id="textColor" value="#000000" oninput="updateStyle()" class="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0">
+                                <span id="textHex" class="text-xs text-slate-700 uppercase font-mono">#000000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-200">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Graphic Backdrop</h3>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1.5">Graphic Accent Overlay</label>
+                        <select id="bgGraphicSelect" onchange="updateStyle()" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-orange-500 shadow-sm transition">
+                            <option value="circle">Curved Ring Accent</option>
+                            <option value="dots">Dotted Matrix Grid</option>
+                            <option value="gradient">Soft Glowing Radial</option>
+                            <option value="none">None (Clean Minimal)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Canvas Ratio Settings -->
+            <div id="tab-canvas" class="tab-content hidden space-y-5">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Canvas Aspect Ratio</h2>
+                    <p class="text-xs text-slate-500 mb-4">Set target social media dimensions for perfect export.</p>
+
+                    <div class="space-y-2.5">
+                        <button onclick="setRatio('4:5')" id="ratioBtn-45" class="w-full p-3 rounded-xl border border-orange-500 bg-orange-50 text-left transition flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-5 h-6 rounded bg-slate-200 border border-orange-400"></div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">Portrait (4:5)</p>
+                                    <p class="text-[10px] text-slate-500">Instagram Feed Post (1080 x 1350)</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-mono text-orange-600 font-bold">Selected</span>
+                        </button>
+
+                        <button onclick="setRatio('1:1')" id="ratioBtn-11" class="w-full p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-left transition flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-6 h-6 rounded bg-slate-200 border border-slate-300"></div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">Square (1:1)</p>
+                                    <p class="text-[10px] text-slate-500">Classic Social Graphic (1080 x 1080)</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-mono text-slate-400">Apply</span>
+                        </button>
+
+                        <button onclick="setRatio('9:16')" id="ratioBtn-916" class="w-full p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-left transition flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-7 rounded bg-slate-200 border border-slate-300"></div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">Story / Reel (9:16)</p>
+                                    <p class="text-[10px] text-slate-500">Vertical Fullscreen (1080 x 1920)</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-mono text-slate-400">Apply</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Center Interactive Preview Canvas Stage -->
+        <section class="flex-1 bg-white checker-bg flex flex-col items-center justify-center p-4 lg:p-8 overflow-auto relative min-h-[500px]">
+            
+            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 text-[11px] font-mono text-slate-600 flex items-center gap-2 shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Live Interactive Canvas</span>
+            </div>
+
+            <div class="relative max-w-full flex items-center justify-center my-auto transition-all">
+                
+                <!-- Main Exportable Canvas Area -->
+                <div id="quoteCanvas" class="w-[420px] h-[525px] relative shadow-2xl overflow-hidden flex flex-col items-center justify-center transition-all duration-300 rounded-xl" style="background-color: #121212;">
+                    
+                    <!-- Background Graphic Decorators -->
+                    <div id="ringAccent" class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full border-[32px] pointer-events-none transition-all opacity-90" style="border-color: #ff5500;"></div>
+                    <div id="gradientAccent" class="hidden absolute inset-0 pointer-events-none opacity-30" style="background: radial-gradient(circle at 80% 80%, #ff5500 0%, transparent 65%);"></div>
+                    <div id="dotsAccent" class="hidden absolute right-6 bottom-6 w-44 h-44 pointer-events-none opacity-30" style="background-image: radial-gradient(#ff5500 2px, transparent 2px); background-size: 16px 16px;"></div>
+
+                    <!-- Inner Card Graphic Block -->
+                    <div id="cardBox" class="w-[300px] bg-white rounded-3xl p-8 shadow-2xl relative z-10 flex flex-col justify-between items-start transition-all" style="min-height: 320px;">
+                        
+                        <!-- Top Quote Mark Container -->
+                        <div id="quoteIconContainer" class="absolute -top-6 left-6 z-20 transition-all">
+                            <svg id="quoteIcon" class="w-16 h-16 transition-colors" viewBox="0 0 100 100" fill="#ff5500">
+                                <path d="M 20 50 Q 20 20 45 20 L 45 35 Q 35 35 35 50 L 50 50 L 50 80 L 20 80 Z M 55 50 Q 55 20 80 20 L 80 35 Q 70 35 70 50 L 85 50 L 85 80 L 55 80 Z"/>
+                            </svg>
+                        </div>
+
+                        <!-- Quote Text Core Body -->
+                        <div id="textWrapper" class="mt-8 mb-6 w-full">
+                            <p id="quoteTextDisplay" class="font-sans leading-tight text-slate-900 transition-all" style="font-size: 32px;">
+                                <span id="primaryText" class="font-bold">Discover your</span>
+                                <span id="accentText" class="block font-bold transition-colors" style="color: #ff5500;">unique strength</span>
+                            </p>
+                        </div>
+
+                        <!-- Author / Brand Footer -->
+                        <div id="footerDivider" class="w-full pt-4 border-t border-slate-100 flex items-center justify-center transition-all">
+                            <p id="footerText" class="text-xs font-bold tracking-widest uppercase transition-colors text-center" style="color: #ff5500;">
+                                VACC MEDIA AKOKA
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Active studio state
+        let currentTemplate = 'cardBox';
+
+        const sampleQuotes = [
+            { primary: "Discover your", accent: "unique strength", author: "VACC MEDIA AKOKA" },
+            { primary: "Dream big and", accent: "dare to fail", author: "NORMAN VAUGHAN" },
+            { primary: "Make today", accent: "worth remembering", author: "CREATIVE STUDIO" },
+            { primary: "Innovation distinguishes", accent: "a leader", author: "STEVE JOBS" },
+            { primary: "Stay hungry and", accent: "stay foolish", author: "STANFORD 2005" }
+        ];
+
+        const presets = {
+            orangeDark: {
+                accent: '#ff5500',
+                bg: '#121212',
+                cardBg: '#ffffff',
+                text: '#000000',
+                graphic: 'circle'
+            },
+            electricCyan: {
+                accent: '#06b6d4',
+                bg: '#0f172a',
+                cardBg: '#ffffff',
+                text: '#0284c7',
+                graphic: 'circle'
+            },
+            royalGold: {
+                accent: '#fbbf24',
+                bg: '#18181b',
+                cardBg: '#27272a',
+                text: '#ffffff',
+                graphic: 'gradient'
+            },
+            purpleVibe: {
+                accent: '#a855f7',
+                bg: '#090514',
+                cardBg: '#ffffff',
+                text: '#3b0764',
+                graphic: 'dots'
+            }
+        };
+
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            document.getElementById('tabBtn-' + tabName).classList.add('active');
+        }
+
+        // Aspect Ratio Handler
+        function setRatio(ratio) {
+            const canvas = document.getElementById('quoteCanvas');
+            
+            ['45', '11', '916'].forEach(id => {
+                const btn = document.getElementById('ratioBtn-' + id);
+                btn.className = "w-full p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-left transition flex items-center justify-between shadow-sm";
+                btn.querySelector('span:last-child').className = "text-xs font-mono text-slate-400";
+                btn.querySelector('span:last-child').innerText = "Apply";
+            });
+
+            const activeBtn = document.getElementById('ratioBtn-' + ratio.replace(':', ''));
+            if (activeBtn) {
+                activeBtn.className = "w-full p-3 rounded-xl border border-orange-500 bg-orange-50 text-left transition flex items-center justify-between shadow-sm";
+                activeBtn.querySelector('span:last-child').className = "text-xs font-mono text-orange-600 font-bold";
+                activeBtn.querySelector('span:last-child').innerText = "Selected";
+            }
+
+            if (ratio === '4:5') {
+                canvas.style.width = '420px';
+                canvas.style.height = '525px';
+            } else if (ratio === '1:1') {
+                canvas.style.width = '450px';
+                canvas.style.height = '450px';
+            } else if (ratio === '9:16') {
+                canvas.style.width = '320px';
+                canvas.style.height = '568px';
+            }
+        }
+
+        // Layout Template Selector Logic
+        function selectTemplate(templateName) {
+            currentTemplate = templateName;
+
+            document.querySelectorAll('.template-card').forEach(btn => {
+                btn.classList.remove('active');
+                btn.querySelector('span:last-child').className = "w-2 h-2 rounded-full bg-slate-300";
+            });
+
+            const activeBtn = document.getElementById('tplBtn-' + templateName);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.querySelector('span:last-child').className = "w-2 h-2 rounded-full bg-orange-500";
+            }
+
+            const cardBox = document.getElementById('cardBox');
+            const iconContainer = document.getElementById('quoteIconContainer');
+            const footerDivider = document.getElementById('footerDivider');
+
+            if (templateName === 'cardBox') {
+                cardBox.className = "w-[300px] rounded-3xl p-8 shadow-2xl relative z-10 flex flex-col justify-between items-start transition-all";
+                cardBox.style.backdropFilter = "none";
+                cardBox.style.border = "none";
+                iconContainer.className = "absolute -top-6 left-6 z-20 transition-all";
+                footerDivider.className = "w-full pt-4 border-t border-slate-100 flex items-center justify-center transition-all";
+            } 
+            else if (templateName === 'minimal') {
+                cardBox.className = "w-[340px] bg-transparent p-4 relative z-10 flex flex-col justify-between items-start transition-all shadow-none";
+                cardBox.style.backgroundColor = "transparent";
+                cardBox.style.backdropFilter = "none";
+                cardBox.style.border = "none";
+                iconContainer.className = "relative mb-4 z-20 transition-all";
+                footerDivider.className = "w-full pt-6 flex items-center justify-start border-none transition-all";
+            } 
+            else if (templateName === 'glass') {
+                cardBox.className = "w-[310px] rounded-3xl p-8 relative z-10 flex flex-col justify-between items-start transition-all shadow-xl";
+                cardBox.style.backdropFilter = "blur(16px)";
+                cardBox.style.border = "1px solid rgba(255, 255, 255, 0.2)";
+                iconContainer.className = "absolute -top-6 left-6 z-20 transition-all";
+                footerDivider.className = "w-full pt-4 border-t border-white/20 flex items-center justify-center transition-all";
+            } 
+            else if (templateName === 'editorial') {
+                cardBox.className = "w-[310px] rounded-none p-8 relative z-10 flex flex-col justify-between items-start transition-all shadow-2xl border-l-4";
+                cardBox.style.backdropFilter = "none";
+                cardBox.style.borderLeftColor = document.getElementById('accentColor').value;
+                iconContainer.className = "relative mb-2 z-20 transition-all";
+                footerDivider.className = "w-full pt-6 flex items-center justify-start border-t border-slate-200 transition-all";
+                document.getElementById('fontFamilySelect').value = 'font-playfair';
+            }
+
+            updateStyle();
+        }
+
+        function updateText() {
+            const primary = document.getElementById('primaryTextInput').value;
+            const accent = document.getElementById('accentTextInput').value;
+            const footer = document.getElementById('footerTextInput').value;
+
+            document.getElementById('primaryText').innerText = primary + " ";
+            document.getElementById('accentText').innerText = accent;
+            document.getElementById('footerText').innerText = footer;
+        }
+
+        function updateStyle() {
+            const accentHex = document.getElementById('accentColor').value;
+            const bgHex = document.getElementById('bgColor').value;
+            const cardBgHex = document.getElementById('cardBgColor').value;
+            const textHex = document.getElementById('textColor').value;
+            const fontSize = document.getElementById('fontSizeInput').value;
+            const fontClass = document.getElementById('fontFamilySelect').value;
+            const bgGraphic = document.getElementById('bgGraphicSelect').value;
+
+            // Update Labels
+            document.getElementById('accentHex').innerText = accentHex;
+            document.getElementById('bgHex').innerText = bgHex;
+            document.getElementById('cardBgHex').innerText = cardBgHex;
+            document.getElementById('textHex').innerText = textHex;
+            document.getElementById('fontSizeVal').innerText = fontSize + 'px';
+
+            // Apply style parameters
+            const quoteCanvas = document.getElementById('quoteCanvas');
+            const cardBox = document.getElementById('cardBox');
+            const quoteTextDisplay = document.getElementById('quoteTextDisplay');
+            const accentText = document.getElementById('accentText');
+            const footerText = document.getElementById('footerText');
+            const quoteIcon = document.getElementById('quoteIcon');
+            const ringAccent = document.getElementById('ringAccent');
+
+            quoteCanvas.style.backgroundColor = bgHex;
+
+            if (currentTemplate === 'glass') {
+                cardBox.style.backgroundColor = cardBgHex + '22';
+            } else if (currentTemplate === 'minimal') {
+                cardBox.style.backgroundColor = 'transparent';
+            } else {
+                cardBox.style.backgroundColor = cardBgHex;
+            }
+
+            if (currentTemplate === 'editorial') {
+                cardBox.style.borderLeftColor = accentHex;
+            }
+
+            // Typography
+            quoteTextDisplay.style.fontSize = fontSize + 'px';
+            quoteTextDisplay.className = `leading-tight transition-all ${fontClass}`;
+            document.getElementById('primaryText').style.color = textHex;
+
+            // Colors
+            accentText.style.color = accentHex;
+            footerText.style.color = accentHex;
+            quoteIcon.setAttribute('fill', accentHex);
+            ringAccent.style.borderColor = accentHex;
+
+            // Background Graphics toggling
+            document.getElementById('ringAccent').classList.add('hidden');
+            document.getElementById('gradientAccent').classList.add('hidden');
+            document.getElementById('dotsAccent').classList.add('hidden');
+
+            if (bgGraphic === 'circle') {
+                document.getElementById('ringAccent').classList.remove('hidden');
+            } else if (bgGraphic === 'gradient') {
+                document.getElementById('gradientAccent').classList.remove('hidden');
+            } else if (bgGraphic === 'dots') {
+                document.getElementById('dotsAccent').classList.remove('hidden');
+            }
+        }
+
+        function applyPreset(name) {
+            const preset = presets[name];
+            if (!preset) return;
+
+            document.getElementById('accentColor').value = preset.accent;
+            document.getElementById('bgColor').value = preset.bg;
+            document.getElementById('cardBgColor').value = preset.cardBg;
+            document.getElementById('textColor').value = preset.text;
+            document.getElementById('bgGraphicSelect').value = preset.graphic;
+
+            updateStyle();
+        }
+
+        function randomizeQuote() {
+            const q = sampleQuotes[Math.floor(Math.random() * sampleQuotes.length)];
+            document.getElementById('primaryTextInput').value = q.primary;
+            document.getElementById('accentTextInput').value = q.accent;
+            document.getElementById('footerTextInput').value = q.author;
+            updateText();
+        }
+
+        // Export Canvas to HD Image
+        function downloadQuote() {
+            const canvasContainer = document.getElementById('quoteCanvas');
+            const btn = document.getElementById('downloadBtn');
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `
+                <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                Exporting...
+            `;
+            btn.disabled = true;
+
+            html2canvas(canvasContainer, {
+                scale: 3,
+                useCORS: true,
+                backgroundColor: null
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'quote-graphic.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error('Export error:', err);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        window.onload = function() {
+            updateText();
+            selectTemplate('cardBox');
+        };
+    </script>
+</body>
+</html>
